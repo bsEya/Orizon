@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # Service de Base de données (PostgreSQL)
+  # ==========================================
+  db:
+    image: postgres:15-alpine
+    container_name: orizon-db
+    restart: unless-stopped # Redémarre automatiquement sauf si arrêté manuellement
+    environment:
+      # Informations d'identification pour la base de données
+      # Celles-ci correspondent à ce qui est défini dans application-dev.properties
+      - POSTGRES_USER=orizon_user
+      - POSTGRES_PASSWORD=orizon_password
+      - POSTGRES_DB=orizon_core
+      # Option de sécurité : définir un mot de passe pour le superutilisateur root (optionnel mais recommandé)
+      - POSTGRES_HOST_AUTH_METHOD=trust # Attention: à ne pas utiliser en production !
+    ports:
+      # Mapping des ports : "port_hote:port_conteneur"
+      # On utilise 5433 sur l'hôte car 5432 est souvent déjà pris en local
+      - "5433:5432"
+    volumes:
+      # Persistance des données : les données de la BD survivront au redémarrage/suppression du conteneur
+      - orizon_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # Vérification de l'état de santé de la base de données
+      test: ["CMD-SHELL", "pg_isready -U orizon_user -d orizon_core"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # Service PgAdmin (Interface d'administration BD)
+  # (Optionnel, utile pour le développement)
+  # ==========================================
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: orizon-pgadmin
+    restart: unless-stopped
+    environment:
+      # Identifiants de connexion à l'interface PgAdmin
+      - PGADMIN_DEFAULT_EMAIL=admin@orizon.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      # Accessible via http://localhost:5050 dans votre navigateur
+      - "5050:80"
+    depends_on:
+      # S'assure que la BD démarre avant PgAdmin
+      - db
+
+# ==========================================
+# Déclaration des volumes nommés
+# ==========================================
+volumes:
+  # Volume pour stocker les données PostgreSQL de manière persistante
+  orizon_postgres_data:
