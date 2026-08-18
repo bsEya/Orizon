@@ -1,0 +1,22 @@
+services:
+  db:
+    # No exposed port to the host in prod — only reachable inside the docker network
+    restart: always
+
+  keycloak:
+    command: start --optimized     # prod mode: requires hostname + TLS config
+    environment:
+      - KC_HOSTNAME=${KC_HOSTNAME}
+      - KC_HOSTNAME_STRICT=true
+      - KC_HTTP_ENABLED=false
+      - KC_HTTPS_CERTIFICATE_FILE=/etc/keycloak/certs/tls.crt
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/etc/keycloak/certs/tls.key
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./certs:/etc/keycloak/certs:ro
+    restart: always
+
+  keycloak-config-cli:
+    volumes:
+      - ./keycloak/config/prod:/config
