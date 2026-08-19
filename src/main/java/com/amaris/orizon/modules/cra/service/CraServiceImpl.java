@@ -6,6 +6,8 @@ import com.amaris.orizon.modules.cra.entity.CraEntry;
 import com.amaris.orizon.modules.cra.exception.ResourceNotFoundException;
 import com.amaris.orizon.modules.cra.exception.ValidationException;
 import com.amaris.orizon.modules.cra.repository.CraEntryRepository;
+import com.amaris.orizon.modules.user.entity.User;
+import com.amaris.orizon.modules.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.annotation.Lazy;
@@ -32,7 +34,7 @@ public class CraServiceImpl implements CraService {
     @Transactional
     public CraEntry saveImputation(CraEntry entry, String teamCode) {
         List<FieldDefinition> configFields = fieldConfigService.getFieldsConfiguration(CRA_MODULE, teamCode);
-        Long userId = (entry.getUser() != null) ? entry.getUser().getId() : null;
+        Long userId = (entry.getUser() != null) ? entry.getUser().getUserId() : null;
         validateImputation(entry, userId, configFields, false, null);
 
         return craEntryRepository.save(entry);
@@ -48,7 +50,7 @@ public class CraServiceImpl implements CraService {
     @Override
     @Transactional(readOnly = true)
     public List<CraEntry> getUserHistory(Long userId) {
-        return craEntryRepository.findByUserIdOrderByDateDesc(userId);
+        return craEntryRepository.findByUserUserIdOrderByDateDesc(userId);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class CraServiceImpl implements CraService {
         if (startDate.isAfter(endDate)) {
             throw new ValidationException("Start date must be before end date.");
         }
-        return craEntryRepository.findByUserIdAndDateBetweenOrderByDateDesc(userId, startDate, endDate);
+        return craEntryRepository.findByUserUserIdAndDateBetweenOrderByDateDesc(userId, startDate, endDate);
     }
 
     @Override
@@ -68,7 +70,7 @@ public class CraServiceImpl implements CraService {
         List<FieldDefinition> configFields = fieldConfigService.getFieldsConfiguration(CRA_MODULE, teamCode);
         
         // Valider la logique métier avant de mettre à jour
-        Long userId = (existingEntry.getUser() != null) ? existingEntry.getUser().getId() : null;
+        Long userId = (existingEntry.getUser() != null) ? existingEntry.getUser().getUserId() : null;
         validateImputation(entryDetails, userId, configFields, true, id);
 
         // Mettre à jour les champs de l'entité existante
