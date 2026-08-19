@@ -9,7 +9,7 @@
       "protocol": "openid-connect",
       "publicClient": true,
       "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "redirectUris": [
         "http://localhost:4200/*"
       ],
@@ -22,10 +22,10 @@
       "name": "Spring Backend",
       "enabled": true,
       "protocol": "openid-connect",
-      "publicClient": false,
+      "publicClient": true,
       "secret": "changeme",
       "standardFlowEnabled": true,
-      "directAccessGrantsEnabled": false,
+      "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": true,
       "authorizationServicesEnabled": false
     }
