@@ -68,7 +68,7 @@ public class CraServiceImpl implements CraService {
         CraEntry existingEntry = getImputationById(id);
 
         List<FieldDefinition> configFields = fieldConfigService.getFieldsConfiguration(CRA_MODULE, teamCode);
-        
+
         // Valider la logique métier avant de mettre à jour
         Long userId = (existingEntry.getUser() != null) ? existingEntry.getUser().getUserId() : null;
         validateImputation(entryDetails, userId, configFields, true, id);
@@ -122,7 +122,7 @@ public class CraServiceImpl implements CraService {
                 if (field.isRequired()) {
                     String fieldKey = field.getFieldKey();
                     Object value = (entry.getDynamicFields() != null) ? entry.getDynamicFields().get(fieldKey) : null;
-                    
+
                     if (value == null || value.toString().isBlank()) {
                         throw new ValidationException("Required field '" + field.getFieldLabel() + "' is missing or empty.");
                     }
@@ -132,7 +132,7 @@ public class CraServiceImpl implements CraService {
                 if (field.getValidationRegex() != null && !field.getValidationRegex().isBlank()) {
                     String fieldKey = field.getFieldKey();
                     Object value = (entry.getDynamicFields() != null) ? entry.getDynamicFields().get(fieldKey) : null;
-                    
+
                     if (value != null && !value.toString().isBlank() && !value.toString().matches(field.getValidationRegex())) {
                         throw new ValidationException("Field '" + field.getFieldLabel() + "' does not match the required format.");
                     }

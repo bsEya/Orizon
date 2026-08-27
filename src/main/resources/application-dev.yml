@@ -1,0 +1,43 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/orizon_core}
+    username: ${DB_USERNAME:orizon_user}
+    password: ${DB_PASSWORD:orizon_password}
+    driver-class-name: org.postgresql.Driver
+
+  docker:
+    compose:
+      enabled: true
+      lifecycle-management: start-and-stop
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changeLog.yml
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    date-format: yyyy-MM-dd
+    serialization:
+      write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.amaris.orizon: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

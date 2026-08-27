@@ -3,7 +3,7 @@ target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-#.env
+#.env.dev
 #.dev.*
 #!.env.dev
 
@@ -34,3 +34,5 @@ build/
 
 ### VS Code ###
 .vscode/
+
+.env*

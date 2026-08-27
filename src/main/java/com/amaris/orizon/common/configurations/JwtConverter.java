@@ -1,4 +1,4 @@
-package com.amaris.orizon.config;
+package com.amaris.orizon.common.configurations;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;

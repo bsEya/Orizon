@@ -45,7 +45,7 @@ public class CraController {
 
     @GetMapping("/user/{userId}")
     @Operation(summary = "Récupérer l'historique d'un utilisateur pour une période donnée",
-               description = "Récupère toutes les imputations pour un utilisateur. Si startDate et endDate sont fournis, filtre les résultats pour cette période.")
+            description = "Récupère toutes les imputations pour un utilisateur. Si startDate et endDate sont fournis, filtre les résultats pour cette période.")
     public ResponseEntity<List<CraEntry>> getUserHistory(
             @PathVariable Long userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date de début (format YYYY-MM-DD)") LocalDate startDate,

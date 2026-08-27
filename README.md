@@ -26,5 +26,5 @@ docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.dev.y
 To run the application with production environment run this command
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose --env-file .env.dev.prod -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```

@@ -1,4 +1,4 @@
-package com.amaris.orizon.config;
+package com.amaris.orizon.common.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

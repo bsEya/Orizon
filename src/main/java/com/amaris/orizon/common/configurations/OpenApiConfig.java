@@ -1,4 +1,4 @@
-package com.amaris.orizon.config;
+package com.amaris.orizon.common.configurations;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
