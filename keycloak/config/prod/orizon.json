@@ -40,7 +40,11 @@
     {
       "username": "ahmedazizelj",
       "email": "ahmedaziz.elj@amaris.com",
+      "firstName": "Ahmed",
+      "lastName": "Elj",
+      "emailVerified": true,
       "enabled": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",

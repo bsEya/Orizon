@@ -1,5 +1,0 @@
-databaseChangeLog:
-  - changeSet:
-      id: 2
-      author: orizon-back
-      changes: []

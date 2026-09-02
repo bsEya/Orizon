@@ -1,12 +1,16 @@
 package com.amaris.orizon.modules.cra.entity;
 
+import com.amaris.orizon.modules.referentiel.entity.LP;
+import com.amaris.orizon.modules.referentiel.entity.Perimetre;
+import com.amaris.orizon.modules.referentiel.entity.Phase;
+import com.amaris.orizon.modules.referentiel.entity.Project;
+import com.amaris.orizon.modules.referentiel.entity.Squad;
 import com.amaris.orizon.modules.user.entity.User;
 import com.amaris.orizon.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 @Entity
 @Table(name = "cra_entries")
@@ -21,29 +25,48 @@ public class CraEntry extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Date de la journée imputée */
     @Column(nullable = false)
     private LocalDate date;
 
+    /** Durée en heures réelles (ex: 2.5, 4.0). Max 8h/jour au total. */
     @Column(nullable = false)
-    private Double duration;
+    private Double hours;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /** Type d'activité : Mission / Travail / Congé / Férié */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "activity_type_id", nullable = false)
     private ActivityType activityType;
 
-    private String comment;
+    /** Projet (optionnel pour Congé/Férié) */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
 
-    /**
-     * Stockage des champs dynamiques définis par l'équipe.
-     * Table jointe : cra_entry_values (entry_id, field_key, field_value)
-     */
-    @ElementCollection
-    @CollectionTable(name = "cra_entry_values", joinColumns = @JoinColumn(name = "entry_id"))
-    @MapKeyColumn(name = "field_key")
-    @Column(name = "field_value")
-    private Map<String, String> dynamicFields;
+    /** Squad */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "squad_id")
+    private Squad squad;
+
+    /** Périmètre */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "perimetre_id")
+    private Perimetre perimetre;
+
+    /** Phase */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "phase_id")
+    private Phase phase;
+
+    /** LP (Lot de Programme) — optionnel */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lp_id")
+    private LP lp;
+
+    /** Description libre de l'activité */
+    private String description;
 }

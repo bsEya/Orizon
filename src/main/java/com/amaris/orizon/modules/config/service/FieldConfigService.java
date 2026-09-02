@@ -1,6 +1,6 @@
 package com.amaris.orizon.modules.config.service;
 
-import com.amaris.orizon.common.exceptions.domain.ResourceNotFoundException;
+import com.amaris.orizon.common.exception.ResourceNotFoundException;
 import com.amaris.orizon.modules.config.entity.FieldDefinition;
 import com.amaris.orizon.modules.config.repository.FieldDefinitionRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,19 +53,14 @@ public class FieldConfigService {
                     }
 
                     return fieldDefinitionRepository.save(field);
-                }).orElseThrow(() -> ResourceNotFoundException
-                        .resourceNotFoundExceptionBuilder()
-                        .message("Field not found with id " + id)
-                        .build());
+                }).orElseThrow(() -> new ResourceNotFoundException("Field not found with id " + id));
     }
 
     @Transactional
     public void deleteField(Long id) {
         if (!fieldDefinitionRepository.existsById(id)) {
-            throw ResourceNotFoundException
-                    .resourceNotFoundExceptionBuilder()
-                    .message("Impossible de supprimer : le champ avec l'id " + id + " n'existe pas.")
-                    .build();        }
+            throw new ResourceNotFoundException("Impossible de supprimer : le champ avec l'id " + id + " n'existe pas.");
+        }
         fieldDefinitionRepository.deleteById(id);
     }
 

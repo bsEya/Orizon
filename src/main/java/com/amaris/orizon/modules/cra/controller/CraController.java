@@ -1,6 +1,6 @@
 package com.amaris.orizon.modules.cra.controller;
 
-import com.amaris.orizon.modules.cra.entity.CraEntry;
+import com.amaris.orizon.modules.cra.dto.*;
 import com.amaris.orizon.modules.cra.service.CraService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,64 +18,129 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/cra")
 @RequiredArgsConstructor
-@Tag(name = "CRA Management", description = "Endpoints pour la gestion des imputations de temps")
+@Tag(name = "CRA - Imputations", description = "Gestion des imputations de temps (activités par journée)")
 public class CraController {
 
     private final CraService craService;
 
-    @PostMapping("/impute")
-    @Operation(summary = "Enregistrer une nouvelle imputation",
-            description = "Permet de saisir du temps pour un utilisateur. Vérifie que la durée journalière ne dépasse pas 1.0 et valide les champs dynamiques de l'équipe.")
-    @ApiResponse(responseCode = "201", description = "Imputation enregistrée avec succès")
-    @ApiResponse(responseCode = "400", description = "Erreur de validation (ex: dépassement du quota ou champ paramétrable manquant)")
-    public ResponseEntity<CraEntry> createImputation(
-            @RequestBody CraEntry entry,
-            @RequestParam String team) {
-        CraEntry savedEntry = craService.saveImputation(entry, team);
-        return new ResponseEntity<>(savedEntry, HttpStatus.CREATED);
+    // ============================================================
+    // JOURNÉE COMPLÈTE
+    // ============================================================
+
+    @GetMapping("/day")
+    @Operation(
+        summary = "Récupérer toutes les activités d'une journée",
+        description = "Retourne la liste des activités imputées par un utilisateur pour une date donnée, avec le total et le restant des heures."
+    )
+    @ApiResponse(responseCode = "200", description = "Journée récupérée")
+    public ResponseEntity<DayResponse> getDayActivities(
+            @RequestParam Long userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @Parameter(description = "Date au format YYYY-MM-DD") LocalDate date) {
+        return ResponseEntity.ok(craService.getDayActivities(userId, date));
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Récupérer une imputation par son ID")
-    @ApiResponse(responseCode = "200", description = "Imputation trouvée")
-    @ApiResponse(responseCode = "404", description = "Imputation non trouvée")
-    public ResponseEntity<CraEntry> getImputationById(@PathVariable Long id) {
-        return ResponseEntity.ok(craService.getImputationById(id));
+    @PostMapping("/day")
+    @Operation(
+        summary = "Enregistrer toute la journée",
+        description = "Sauvegarde l'ensemble des activités d'une journée en une seule requête (bouton 'Enregistrer ma journée'). Remplace les activités existantes pour cet utilisateur/date."
+    )
+    @ApiResponse(responseCode = "200", description = "Journée enregistrée avec succès")
+    @ApiResponse(responseCode = "400", description = "Validation échouée (total > 8h, champ manquant...)")
+    public ResponseEntity<DayResponse> saveDay(@RequestBody SaveDayRequest request) {
+        return ResponseEntity.ok(craService.saveDay(request));
     }
 
-    @GetMapping("/user/{userId}")
-    @Operation(summary = "Récupérer l'historique d'un utilisateur pour une période donnée",
-            description = "Récupère toutes les imputations pour un utilisateur. Si startDate et endDate sont fournis, filtre les résultats pour cette période.")
-    public ResponseEntity<List<CraEntry>> getUserHistory(
+    @DeleteMapping("/day")
+    @Operation(
+        summary = "Vider toutes les activités d'une journée",
+        description = "Supprime toutes les activités imputées pour un utilisateur à une date donnée (bouton 'Vider')."
+    )
+    @ApiResponse(responseCode = "204", description = "Journée vidée")
+    public ResponseEntity<Void> clearDay(
+            @RequestParam Long userId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        craService.clearDay(userId, date);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ============================================================
+    // ACTIVITÉ INDIVIDUELLE
+    // ============================================================
+
+    @PostMapping("/activities")
+    @Operation(
+        summary = "Créer une activité",
+        description = "Ajoute une ligne d'activité pour une journée. Valide que le total journalier ne dépasse pas 8h."
+    )
+    @ApiResponse(responseCode = "201", description = "Activité créée")
+    @ApiResponse(responseCode = "400", description = "Validation échouée")
+    public ResponseEntity<CraEntryResponse> createActivity(@RequestBody CraEntryRequest request) {
+        return new ResponseEntity<>(craService.createActivity(request), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/activities/{id}")
+    @Operation(summary = "Récupérer une activité par son ID")
+    @ApiResponse(responseCode = "200", description = "Activité trouvée")
+    @ApiResponse(responseCode = "404", description = "Activité introuvable")
+    public ResponseEntity<CraEntryResponse> getActivityById(@PathVariable Long id) {
+        return ResponseEntity.ok(craService.getActivityById(id));
+    }
+
+    @PutMapping("/activities/{id}")
+    @Operation(
+        summary = "Mettre à jour une activité",
+        description = "Modifie une activité existante. Ré-applique toutes les validations (max 8h/jour)."
+    )
+    @ApiResponse(responseCode = "200", description = "Activité mise à jour")
+    @ApiResponse(responseCode = "400", description = "Validation échouée")
+    @ApiResponse(responseCode = "404", description = "Activité introuvable")
+    public ResponseEntity<CraEntryResponse> updateActivity(
+            @PathVariable Long id,
+            @RequestBody CraEntryRequest request) {
+        return ResponseEntity.ok(craService.updateActivity(id, request));
+    }
+
+    @DeleteMapping("/activities/{id}")
+    @Operation(summary = "Supprimer une activité")
+    @ApiResponse(responseCode = "204", description = "Activité supprimée")
+    @ApiResponse(responseCode = "404", description = "Activité introuvable")
+    public ResponseEntity<Void> deleteActivity(@PathVariable Long id) {
+        craService.deleteActivity(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/activities/{id}/duplicate")
+    @Operation(
+        summary = "Dupliquer une activité",
+        description = "Crée une copie exacte d'une activité existante (même journée, mêmes données). Bouton 'Dupliquer'."
+    )
+    @ApiResponse(responseCode = "201", description = "Activité dupliquée")
+    @ApiResponse(responseCode = "400", description = "Duplication impossible (dépasserait 8h)")
+    @ApiResponse(responseCode = "404", description = "Activité source introuvable")
+    public ResponseEntity<CraEntryResponse> duplicateActivity(@PathVariable Long id) {
+        return new ResponseEntity<>(craService.duplicateActivity(id), HttpStatus.CREATED);
+    }
+
+    // ============================================================
+    // HISTORIQUE
+    // ============================================================
+
+    @GetMapping("/history/{userId}")
+    @Operation(
+        summary = "Historique des imputations d'un utilisateur",
+        description = "Retourne toutes les activités d'un utilisateur, filtrables par période."
+    )
+    public ResponseEntity<List<CraEntryResponse>> getUserHistory(
             @PathVariable Long userId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date de début (format YYYY-MM-DD)") LocalDate startDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Date de fin (format YYYY-MM-DD)") LocalDate endDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @Parameter(description = "Date de début YYYY-MM-DD") LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @Parameter(description = "Date de fin YYYY-MM-DD") LocalDate endDate) {
 
         if (startDate != null && endDate != null) {
             return ResponseEntity.ok(craService.getUserHistoryForPeriod(userId, startDate, endDate));
         }
         return ResponseEntity.ok(craService.getUserHistory(userId));
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Mettre à jour une imputation existante",
-            description = "Permet de modifier une imputation de temps. Ré-applique les validations.")
-    @ApiResponse(responseCode = "200", description = "Imputation mise à jour avec succès")
-    @ApiResponse(responseCode = "400", description = "Erreur de validation")
-    @ApiResponse(responseCode = "404", description = "Imputation non trouvée")
-    public ResponseEntity<CraEntry> updateImputation(
-            @PathVariable Long id,
-            @RequestBody CraEntry entry,
-            @RequestParam String team) {
-        return ResponseEntity.ok(craService.updateImputation(id, entry, team));
-    }
-
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Supprimer une imputation")
-    @ApiResponse(responseCode = "204", description = "Imputation supprimée avec succès")
-    @ApiResponse(responseCode = "404", description = "Imputation non trouvée")
-    public ResponseEntity<Void> deleteImputation(@PathVariable Long id) {
-        craService.deleteImputation(id);
-        return ResponseEntity.noContent().build();
     }
 }
