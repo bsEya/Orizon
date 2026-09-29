@@ -5,7 +5,7 @@ import com.amaris.orizon.modules.referentiel.entity.Perimetre;
 import com.amaris.orizon.modules.referentiel.entity.Phase;
 import com.amaris.orizon.modules.referentiel.entity.Project;
 import com.amaris.orizon.modules.referentiel.entity.Squad;
-import com.amaris.orizon.modules.user.entity.User;
+import com.amaris.orizon.modules.gestionuser.entity.User;
 import com.amaris.orizon.shared.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;

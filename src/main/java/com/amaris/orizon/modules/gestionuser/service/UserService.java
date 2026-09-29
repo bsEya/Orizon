@@ -1,8 +1,8 @@
-package com.amaris.orizon.modules.user.service;
+package com.amaris.orizon.modules.gestionuser.service;
 
-import com.amaris.orizon.modules.user.entity.User;
-import com.amaris.orizon.modules.user.repository.UserRepository;
 import com.amaris.orizon.exception.BusinessException;
+import com.amaris.orizon.modules.gestionuser.repository.UserRepository;
+import com.amaris.orizon.modules.gestionuser.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class UserService {
     }
 
     /**
-     * Récupère tous les utilisateurs (utile pour ton équipe PDA Camunda).
+     * Récupère tous les utilisateurs
      */
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {

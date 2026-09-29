@@ -3,12 +3,11 @@ package com.amaris.orizon.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -20,6 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // AJOUTÉ : sans cette ligne, @PreAuthorize("hasAuthority(...)") est ignoré silencieusement
 public class SecurityConfig {
     private final JwtConverter jwtConverter;
 
@@ -33,13 +33,13 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                    // --- Routes publiques (accessibles sans authentification) ---
-                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                    .requestMatchers("/api/v1/ref/**").permitAll()
-                    .requestMatchers("/api/v1/users/**").permitAll()
+                        // --- Routes publiques (accessibles sans authentification) ---
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/v1/ref/**").permitAll()
+                        .requestMatchers("/api/v1/users/**").permitAll()
 
-                    // --- Routes protégées (CRA et autres) ---
-                    .anyRequest().authenticated()
+                        // --- Routes protégées (CRA et autres) ---
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtConverter)))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -52,11 +52,4 @@ public class SecurityConfig {
             @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri:http://localhost:8081/realms/orizon/protocol/openid-connect/certs}") String jwkSetUri) {
         return org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
     }
-
-    // Le PasswordEncoder est essentiel pour ne pas stocker les mots de passe en clair dans la base de données.
-    // BCrypt est l'algorithme standard recommandé.
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
 }

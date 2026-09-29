@@ -1,4 +1,4 @@
-package com.amaris.orizon.modules.user.dto;
+package com.amaris.orizon.modules.gestionuser.dto;
 
 import lombok.Data;
 import java.util.Map;

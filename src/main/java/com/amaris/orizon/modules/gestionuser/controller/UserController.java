@@ -1,10 +1,12 @@
-package com.amaris.orizon.modules.user.controller;
+package com.amaris.orizon.modules.gestionuser.controller;
 
-import com.amaris.orizon.modules.user.entity.User;
-import com.amaris.orizon.modules.user.service.UserService;
+import com.amaris.orizon.modules.gestionuser.entity.User;
+import com.amaris.orizon.modules.gestionuser.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +22,12 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Créer un nouvel utilisateur")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.createUser(user));
+    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
+        User created = userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @GetMapping
+    @GetMapping //Lister tous les utilisateurs
     @Operation(summary = "Lister tous les utilisateurs")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());

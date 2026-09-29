@@ -5,6 +5,8 @@ import com.amaris.orizon.modules.cra.entity.CraEntry;
 import com.amaris.orizon.modules.cra.exception.ResourceNotFoundException;
 import com.amaris.orizon.modules.cra.exception.ValidationException;
 import com.amaris.orizon.modules.cra.repository.CraEntryRepository;
+import com.amaris.orizon.modules.gestionuser.entity.User;
+import com.amaris.orizon.modules.gestionuser.repository.UserRepository;
 import com.amaris.orizon.modules.referentiel.entity.LP;
 import com.amaris.orizon.modules.referentiel.entity.Perimetre;
 import com.amaris.orizon.modules.referentiel.entity.Phase;
@@ -18,8 +20,6 @@ import com.amaris.orizon.modules.referentiel.repository.SquadRepository;
 import com.amaris.orizon.modules.cra.entity.ActivityType;
 import com.amaris.orizon.modules.cra.repository.ActivityTypeRepository;
 import com.amaris.orizon.modules.referentiel.dto.ReferentielItemDto;
-import com.amaris.orizon.modules.user.entity.User;
-import com.amaris.orizon.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -300,7 +300,8 @@ public class CraServiceImpl implements CraService {
                 .date(e.getDate())
                 .hours(e.getHours())
                 .userId(e.getUser().getUserId())
-                .userName(e.getUser().getFirstName() + " " + e.getUser().getLastName())
+//                .userName(e.getUser().getUsername() + " " + e.getUser().getLastName())
+                .userName(e.getUser().getUsername())
                 .activityType(e.getActivityType() != null ? toRefDto(e.getActivityType().getId(), e.getActivityType().getCode(), e.getActivityType().getLabel()) : null)
                 .project(e.getProject() != null ? toRefDto(e.getProject().getId(), e.getProject().getCode(), e.getProject().getLabel()) : null)
                 .squad(e.getSquad() != null ? toRefDto(e.getSquad().getId(), e.getSquad().getCode(), e.getSquad().getLabel()) : null)

@@ -12,7 +12,7 @@ import com.amaris.orizon.modules.referentiel.repository.PerimetreRepository;
 import com.amaris.orizon.modules.referentiel.repository.PhaseRepository;
 import com.amaris.orizon.modules.referentiel.repository.ProjectRepository;
 import com.amaris.orizon.modules.referentiel.repository.SquadRepository;
-import com.amaris.orizon.modules.user.repository.UserRepository;
+import com.amaris.orizon.modules.gestionuser.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
